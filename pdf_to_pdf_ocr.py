@@ -88,7 +88,12 @@ def archive_file(file_path, archive_folder, ocr_was_needed):
 
 
 def rename_file_no_ocr(file_path):
-    new_file_path = file_path.replace(".pdf", ".nocr.pdf")
+    base_new_file_path = file_path.replace('.pdf', '.nocr.pdf')
+    new_file_path = base_new_file_path
+    counter = 1
+    while os.path.exists(new_file_path):
+        new_file_path = base_new_file_path.replace('.nocr.pdf', f'_{counter}.nocr.pdf')
+        counter += 1
     os.rename(file_path, new_file_path)
     print(f"Renamed file to: {new_file_path}")
 
