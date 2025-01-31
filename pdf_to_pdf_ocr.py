@@ -7,12 +7,16 @@ import re
 
 
 def extract_text_from_pdf(pdf_path):
-    document = fitz.open(pdf_path)
-    text = ""
-    for page_num in range(len(document)):
-        page = document.load_page(page_num)
-        text += page.get_text()
-    return text
+    try:
+        document = fitz.open(pdf_path)
+        text = ""
+        for page_num in range(len(document)):
+            page = document.load_page(page_num)
+            text += page.get_text()
+        return text
+    except Exception as e:
+        print(f"Error opening {pdf_path}: {e}")
+        return ""
 
 
 def is_text_meaningful(text):
@@ -25,17 +29,18 @@ def is_text_meaningful(text):
 
 
 def ocr_pdf_if_needed(input_pdf_path, output_pdf_path):
-    # Extract text from the PDF
     extracted_text = extract_text_from_pdf(input_pdf_path)
-
-    # Check if the text is meaningful
     if is_text_meaningful(extracted_text):
         print("The PDF already contains readable text. No OCR needed.")
         return False
     else:
         print("The PDF does not contain readable text. Performing OCR...")
-        ocrmypdf.ocr(input_pdf_path, output_pdf_path, force_ocr=True, language="fra", optimize=3)
-        return True
+        try:
+            ocrmypdf.ocr(input_pdf_path, output_pdf_path, force_ocr=True, language='fra')
+            return True
+        except Exception as e:
+            print(f"Error performing OCR on {input_pdf_path}: {e}")
+            return None
 
 
 def delete_old_archives(archive_folder, days=30):
@@ -127,9 +132,12 @@ if __name__ == "__main__":
     iteration_count = 0
 
     while True:
-        process_pdfs(input_folder, archive_folder)
-        iteration_count += 1
-        if iteration_count >= 360:  # donc seulement toutes les heures
-            delete_old_archives(archive_folder)
-            iteration_count = 0
+        try:
+            process_pdfs(input_folder, archive_folder)
+            iteration_count += 1
+            if iteration_count >= 360:  # donc seulement toutes les heures
+                delete_old_archives(archive_folder)
+                iteration_count = 0
+        except Exception as e:
+            print(f"Error processing PDFs: {e}")
         time.sleep(10)
