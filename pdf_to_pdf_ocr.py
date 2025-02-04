@@ -25,6 +25,7 @@ def is_text_meaningful(text):
     if len(text) < 200: # en-dessous de 200 caractères, on considère que c'est pas significatif
         return False
     alphanumeric_chars = re.findall(r"\w", text)
+    print(f"Text: {text}")
     return len(alphanumeric_chars) / len(text) > 0.5
 
 
